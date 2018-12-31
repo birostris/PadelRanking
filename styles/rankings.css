@@ -1,0 +1,43 @@
+/* If you want you can use font-face */
+body { 
+    color:white;
+    background-color:#15222E; 
+    font-family: 'Unica One', Arial, Helvetica, sans-serif;
+}
+
+table{ padding:30px }
+
+tr.ranking {
+    background:#0A4C8C;
+    color:#FFF
+}
+
+tr.ranking:nth-child(1){ background:#ffd700; color:#15222E}
+tr.ranking:nth-child(2){ background:#c0c0c0; color:#15222E}
+tr.ranking:nth-child(3){ background:#a52a2a; color:#ffffff}
+tr.ranking:hover {background: #47A3D8;color:#ffffff}
+
+
+tr.games {
+    background:#0A4C8C;
+    color:#FFF
+}
+
+
+tr.games:nth-child(1){ color:#fff}
+tr.games:nth-child(2){ color:#ddd}
+tr.games:nth-child(3){ color:#aaa}
+tr.games:nth-child(4){ color:#999}
+tr.games:nth-child(5){ color:#888}
+tr.games:hover {background: #47A3D8;color:#ffffff}
+
+
+td {
+    border-bottom: 1px solid #ddd;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 30px;
+  }
+  
+td.small{ padding-left:30px; font-size:16px;}
+
