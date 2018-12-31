@@ -126,14 +126,14 @@ def GetSortedRanking_(players):
     rankings = {}
     for p in players:
         rankings[p] = (ts.expose(players[p]), players[p])
-    return sorted(rankings.iteritems(), key=lambda (k,v): (v[0],k), reverse=True)
+    return sorted(rankings.items(), key=lambda kv : (kv[1][0],kv[0]), reverse=True)
 
 def GetRanking(conn, players, print_ranking):
     playerNames = GetIdPlayerNameDict(conn)
     r = []
     
     if print_ranking:
-        print "---------------------"
+        print("---------------------")
     
     prevRankingPoint = 1000000.
     pos = 1
@@ -148,7 +148,7 @@ def GetRanking(conn, players, print_ranking):
             prevRankingPoint = rankingPoint
         r.append((name, p[1]))
     if print_ranking:
-        print "---------------------"
+        print("---------------------")
     return r
             
 def win_probability(team1, team2):
