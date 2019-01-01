@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser(description='Log data from an ARITERM Biomatic 
 parser.add_argument("-db", "--database", default="padel_ranking.db",  help="The sqlite database file (default: %(default)s)")
 parser.add_argument("-p", "--port", default=8880,  type=int, help="Webserver port (default: %(default)i)")
 parser.add_argument("-v", "--verbose", action='store_true',  help="verbose logging of calls")
+parser.add_argument("-pwd", "--password", default="password",  help="The password for being able to remove games (default: %(default)s)")
 
 args = parser.parse_args()
 
@@ -52,11 +53,12 @@ def AddGame(conn, p1, p2, p3, p4, score1, score2, americano = False):
         return ("Added game with id {}   {}-{}   {}".format(nextId, score1, score2, "Americano" if americano else "" ))
     return None
 
-def DeleteGame(conn, ids):
-    for id in ids:
-        conn.execute("DELETE FROM games WHERE id = ?", (id,))
+def DeleteGame(conn, id, pwd):
+    if pwd != args.password or id < 0:
+        return None
+    conn.execute("DELETE FROM games WHERE id = ?", (id,))
     conn.commit()
-    print("Deleted game with id {}".format(id))
+    return "Deleted game with id {}".format(id)
 
 def DeleteAllGames(conn):
     conn.execute("DELETE FROM games")
@@ -175,12 +177,12 @@ def CreateTeam(players, p1, p2):
 def PlayGame_(team1, team2, res1, res2, americano = False):
     rating_groups = (team1, team2)
     total = float(res1 + res2)
-    a = res1 / total
-    b = res2 / total
     d = abs(res1 - res2) / total
     
-    factor = 0.3 if americano else 0.1
-    TS = ts.TrueSkill(draw_probability  = 0.05 + d * factor)  
+    factor = 0.5 if americano else 0.5
+    draw_p = 0.05 + d * factor
+
+    TS = ts.TrueSkill(draw_probability = draw_p)  
     
     results = [(_GetPlace(res1, res2), _GetPlace(res2, res1))]
 
@@ -282,6 +284,17 @@ class DataFetching(Resource):
                 return json.dumps({ "success": 1, "message": m}).encode("utf8")
             else:
                 return json.dumps({"success": 0, "message": "Could not add game - Players not unique"}).encode("utf8")
+
+        if request.uri == "/data/delete_game":
+            inp = request.content.read()
+            content = json.loads(inp)
+            m = DeleteGame(self.db, content['game_id'], content['pwd'])
+            if m != None:
+                request.setResponseCode(200)
+                return json.dumps({ "success": 1, "message": m}).encode("utf8")
+            else:
+                return json.dumps({"success": 0, "message": "Not authorized to remove game or bad id"}).encode("utf8")
+
 
 
 def main():

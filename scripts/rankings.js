@@ -160,7 +160,9 @@ function UpdateGames(games)
         var score1 = game.score1
         var score2 = game.score2;
 
-        table.append("<tr class=\"games\"><td>"+p1+","+p2+"</td><td>"+p3+","+p4+"</td><td>"+score1+"-"+score2+"</td>");
+        var id = game.id;
+
+        table.append("<tr class=\"games\"><td class='small'>"+id+"</td><td>"+p1+","+p2+"</td><td>"+p3+","+p4+"</td><td>"+score1+"-"+score2+"</td>");
     }
 }
 
@@ -225,6 +227,42 @@ function AddPlayerButtonEnable()
     $("#add_player").prop("disabled", disabled);
 }
 
+
+function DeleteGame()
+{
+    var id = parseInt($("#game_id").val());
+    var pwd = $("#password").val();
+
+    if(isNaN(id) || pwd == null)
+    {
+        alert("Id and password is needed");
+        return;
+    }
+
+    $.ajax({
+        url : "/data/delete_game",
+        type: "POST",
+        data: JSON.stringify(
+            { 
+                "pwd": pwd, 
+                "game_id": id,
+            }),
+        contentType: "application/json; charset=utf-8",
+        dataType   : "json",
+        success    : function(result,status,xhr){
+            alert(result.message);
+            if (status == "success")
+            { 
+                GetGames();
+                GetRankings();
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            //alert(xhr.status);
+            alert(thrownError);
+        }
+    });
+}
 
 function ValidateAndAddGame() 
 {
@@ -328,6 +366,7 @@ function RankingsStartup()
     GetGames();
     $("#add_player").click(function() {ValidateAndAddPlayer();});
     $("#add_game").click(function() {ValidateAndAddGame();});
+    $("#delete_game").click(function() {DeleteGame();});
     AddGameButtonEnable();
     AddPlayerButtonEnable();
 
