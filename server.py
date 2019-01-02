@@ -81,15 +81,14 @@ def AddPlayer(conn, firstname, lastname, nick):
         nextId = GetNextPlayerId(conn)
         conn.execute("INSERT INTO players VALUES (?,?,?,?)", (nextId, firstname, lastname, nick))
         conn.commit()
-        print("{} {}  added with nick '{}'".format(firstname, lastname, nick))
-        return True
-    return False
+        return "{} {} added with nick '{}'".format(firstname, lastname, nick)
+    return None
 
 def GetPlayerId(conn, nick):
     v = conn.execute("SELECT id from players where nick = ?",(nick,)).fetchone()
     if(v == None):
         return None
-    return v['id']  
+    return v['id']
 
 def GetIdPlayerNameDict(conn, showNick = True):
     vals = conn.execute("SELECT * from players").fetchall()
@@ -133,13 +132,12 @@ def GetSortedRanking_(players):
 def GetRanking(conn, players, print_ranking):
     playerNames = GetIdPlayerNameDict(conn)
     r = []
-    
+
     if print_ranking:
         print("---------------------")
-    
+
     prevRankingPoint = 1000000.
     pos = 1
-    
     for p in GetSortedRanking_(players):
         name = playerNames[p[0]]
         if print_ranking:
@@ -152,7 +150,7 @@ def GetRanking(conn, players, print_ranking):
     if print_ranking:
         print("---------------------")
     return r
-            
+
 def win_probability(team1, team2):
     delta_mu = sum(r.mu for r in team1) - sum(r.mu for r in team2)
     sum_sigma = sum(r.sigma ** 2 for r in itertools.chain(team1, team2))
@@ -163,7 +161,7 @@ def win_probability(team1, team2):
 
 def _GetPlace(p1, p2):
     return 1 if p1 <= p2 else 0
-                     
+
 def flatten(d):
     r = {}
     for e in d:
@@ -175,12 +173,12 @@ def PlayGame_(team1, team2, res1, res2, americano = False):
     rating_groups = (team1, team2)
     total = float(res1 + res2)
     d = abs(res1 - res2) / total
-    
+
     factor = 0.5 if americano else 0.5
     draw_p = 0.05 + d * factor
 
-    TS = ts.TrueSkill(draw_probability = draw_p)  
-    
+    TS = ts.TrueSkill(draw_probability = draw_p)
+
     results = [(_GetPlace(res1, res2), _GetPlace(res2, res1))]
 
     for r in results:
@@ -192,15 +190,15 @@ def PlayAmericano_(team1, team2, res1, res2):
 
 def ComputeRatings(conn, verbose):
     temp_players = GetAllPlayers(conn)
-    
+
     playerNames = GetIdPlayerNameDict(conn)
-    
+
     players = {}
 
     for p in temp_players:
         players[p['id']] = ts.Rating()
     games = GetAllGames(conn)
-    
+
     for g in games:
         p = (g['player1'], g['player2'], g['player3'], g['player4'])
         team1 = {p[0] : players[p[0]], p[1]: players[p[1]]}
@@ -218,11 +216,11 @@ def ComputeRatings(conn, verbose):
                 diffRank = ts.expose(newRatings[t]) - ts.expose(players[t])
                 print("\t{}: mu:{}  rank:{}".format(playerNames[t], diffMu, diffRank)) 
             players[t] = newRatings[t]
-    
     return players
 
 #######################
-
+####   WEBSERVER  #####
+#######################
 class DataFetching(Resource):
     isLeaf = True
 
@@ -260,22 +258,24 @@ class DataFetching(Resource):
     def render_POST(self, request):
         if request.uri == b"/data/add_player":
             inp = request.content.read()
-            content = json.loads(inp)
-            if AddPlayer(self.db, content['firstname'], 
-                         content['lastname'], content['nick']):
+            content = json.loads(inp.decode("utf8"))
+            m = AddPlayer(self.db, content['firstname'],content['lastname'], content['nick'])
+            print(m)
+            if(m)
                 request.setResponseCode(200)
-                return json.dumps({ "success": 1, "message": "{} {} added with nick '{}'".format(content['firstname'], content['lastname'], content['nick'])}).encode("utf8")
+                return json.dumps({ "success": 1, "message": m}).encode("utf8")
             else:
                 return json.dumps({"success": 0, "message": "ERROR - Nick '{}' is not unique".format(content['nick'])}).encode("utf8")
 
         if request.uri == b"/data/add_game":
             inp = request.content.read()
-            content = json.loads(inp)
-            m = AddGame(self.db, 
+            content = json.loads(inp.decode("utf8"))
+            m = AddGame(self.db,
                         content['player1'], content['player2'],
-                        content['player3'], content['player4'], 
+                        content['player3'], content['player4'],
                         content['score1'], content['score2'],
                         content['americano'])
+            print(m)
             if m != None:
                 request.setResponseCode(200)
                 return json.dumps({ "success": 1, "message": m}).encode("utf8")
@@ -284,8 +284,9 @@ class DataFetching(Resource):
 
         if request.uri == b"/data/delete_game":
             inp = request.content.read()
-            content = json.loads(inp)
+            content = json.loads(inp.decode("utf8"))
             m = DeleteGame(self.db, content['game_id'], content['pwd'])
+            print(m)
             if m != None:
                 request.setResponseCode(200)
                 return json.dumps({ "success": 1, "message": m}).encode("utf8")
