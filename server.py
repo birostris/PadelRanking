@@ -261,7 +261,7 @@ class DataFetching(Resource):
             content = json.loads(inp.decode("utf8"))
             m = AddPlayer(self.db, content['firstname'],content['lastname'], content['nick'])
             print(m)
-            if(m)
+            if m != None:
                 request.setResponseCode(200)
                 return json.dumps({ "success": 1, "message": m}).encode("utf8")
             else:
