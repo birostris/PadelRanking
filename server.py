@@ -158,7 +158,7 @@ def win_probability(team1, team2):
     sum_sigma = sum(r.sigma ** 2 for r in itertools.chain(team1, team2))
     size = len(team1) + len(team2)
     TS = ts.TrueSkill()
-    denom = math.sqrt(size * (TS.BETA * TS.BETA) + sum_sigma)
+    denom = math.sqrt(size * (ts.BETA * ts.BETA) + sum_sigma)
     return TS.cdf(delta_mu / denom)
 
 def _GetPlace(p1, p2):
@@ -170,9 +170,6 @@ def flatten(d):
         for f in e:
             r[f] = e[f]
     return r
-
-def CreateTeam(players, p1, p2):
-    return flatten((GetPlayer(db,p1), GetPlayer(db,p2)))
 
 def PlayGame_(team1, team2, res1, res2, americano = False):
     rating_groups = (team1, team2)
@@ -261,7 +258,7 @@ class DataFetching(Resource):
         return ""
 
     def render_POST(self, request):
-        if request.uri == "/data/add_player":
+        if request.uri == b"/data/add_player":
             inp = request.content.read()
             content = json.loads(inp)
             if AddPlayer(self.db, content['firstname'], 
@@ -271,7 +268,7 @@ class DataFetching(Resource):
             else:
                 return json.dumps({"success": 0, "message": "ERROR - Nick '{}' is not unique".format(content['nick'])}).encode("utf8")
 
-        if request.uri == "/data/add_game":
+        if request.uri == b"/data/add_game":
             inp = request.content.read()
             content = json.loads(inp)
             m = AddGame(self.db, 
@@ -285,7 +282,7 @@ class DataFetching(Resource):
             else:
                 return json.dumps({"success": 0, "message": "Could not add game - Players not unique"}).encode("utf8")
 
-        if request.uri == "/data/delete_game":
+        if request.uri == b"/data/delete_game":
             inp = request.content.read()
             content = json.loads(inp)
             m = DeleteGame(self.db, content['game_id'], content['pwd'])
