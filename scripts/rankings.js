@@ -4,11 +4,13 @@ var graphOptions = {
     chart: {
         renderTo: 'rankings_graph',
     },
+    tooltip: { enabled: false},
     plotOptions: {
         areaspline:
         {
-            fillOpacity : 0.3
-        }
+            fillOpacity : 0.3,
+            enableMouseTracking: false
+        }        
     },
     title: {
         text:"TopTracer TrueSkill(mod) Padel Ranking"
@@ -112,7 +114,7 @@ function UpdateRankings(rankings)
 
         if(ranking != prevRanking)
             pos = i + 1;
-        table.append("<tr class=\"ranking\"><td>"+pos+"</td><td>"+name+"</td><td class=\"small\">"+ranking+"</td>");
+        table.append("<tr class=\"ranking\"><td>"+pos+"</td><td>"+name+"</td><td class=\"small\">"+ranking.toFixed(3)+"</td>");
         prevRanking = ranking;
     }
 }
@@ -149,7 +151,7 @@ function UpdateGames(games)
         return;
     var table = $("#last_games");
     table.empty();
-    for(var i = games.length - 1; i >= 0 && i >= games.length - 5; i--)
+    for(var i = games.length - 1; i >= 0 && i >= games.length - 10; i--)
     {
         var game = games[i];
         var p1 = game.player1;
@@ -161,8 +163,10 @@ function UpdateGames(games)
         var score2 = game.score2;
 
         var id = game.id;
+        var d = new Date(game.date);
+        var date = d.toLocaleDateString()
 
-        table.append("<tr class=\"games\"><td class='small'>"+id+"</td><td>"+p1+","+p2+"</td><td>"+p3+","+p4+"</td><td>"+score1+"-"+score2+"</td>");
+        table.append("<tr class=\"games\"><td class='small'>"+id +"</td><td class='small'>"+ date +"</td><td>"+p1+","+p2+"</td><td>"+p3+","+p4+"</td><td>"+score1+"-"+score2+"</td>");
     }
 }
 

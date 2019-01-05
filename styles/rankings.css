@@ -20,15 +20,15 @@ tr.ranking:hover {background: #47A3D8;color:#ffffff}
 
 tr.games {
     background:#0A4C8C;
-    color:#FFF
+    color:#999
 }
 
 
 tr.games:nth-child(1){ color:#fff}
 tr.games:nth-child(2){ color:#ddd}
-tr.games:nth-child(3){ color:#aaa}
-tr.games:nth-child(4){ color:#999}
-tr.games:nth-child(5){ color:#888}
+tr.games:nth-child(3){ color:#ccc}
+tr.games:nth-child(4){ color:#bbb}
+tr.games:nth-child(5){ color:#aaa}
 tr.games:hover {background: #47A3D8;color:#ffffff}
 
 

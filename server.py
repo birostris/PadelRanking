@@ -169,24 +169,22 @@ def flatten(d):
             r[f] = e[f]
     return r
 
-def PlayGame_(team1, team2, res1, res2, americano = False):
+def PlayGame_(tSkill, team1, team2, res1, res2, americano = False):
     rating_groups = (team1, team2)
     total = float(res1 + res2)
     d = abs(res1 - res2) / total
 
-    factor = 0.5 if americano else 0.5
-    draw_p = 0.05 + d * factor
+    factor = 0.4 if americano else 0.4
+    offset = 0.05 if americano else 0.1
+    draw_p = offset + d * factor
 
-    TS = ts.TrueSkill(draw_probability = draw_p)
+    tSkill.draw_probability = draw_p
 
     results = [(_GetPlace(res1, res2), _GetPlace(res2, res1))]
 
     for r in results:
-        rating_groups = TS.rate(rating_groups, ranks=r)
+        rating_groups = tSkill.rate(rating_groups, ranks=r)
     return rating_groups
-
-def PlayAmericano_(team1, team2, res1, res2):
-    return PlayGame_(team1, team2, res1, res2, True)
 
 def ComputeRatings(conn, verbose):
     temp_players = GetAllPlayers(conn)
@@ -199,13 +197,15 @@ def ComputeRatings(conn, verbose):
         players[p['id']] = ts.Rating()
     games = GetAllGames(conn)
 
+    tSkill = ts.TrueSkill()
+
     for g in games:
         p = (g['player1'], g['player2'], g['player3'], g['player4'])
         team1 = {p[0] : players[p[0]], p[1]: players[p[1]]}
         team2 = {p[2] : players[p[2]], p[3]: players[p[3]]}
         s = (g['score1'], g['score2'])
         am = g['gametype'] == 1
-        newRatings = flatten(PlayGame_(team1, team2, s[0], s[1], am))
+        newRatings = flatten(PlayGame_(tSkill, team1, team2, s[0], s[1], am))
 
         if verbose:
             print("({}, {})  vs ({}, {})    {}-{}   {}".format(playerNames[p[0]], playerNames[p[1]],
