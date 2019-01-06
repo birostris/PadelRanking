@@ -179,23 +179,16 @@ def reintervalClamped(f, oldMin, oldMax, newMin, newMax):
 def PlayGame_(tSkill, team1, team2, res1, res2, americano = False):
     rating_groups = (team1, team2)
 
+    diff = abs(res1 - res2)
     if americano:
         total = res1 + res2
-        diff = abs(res1 - res2)
         dm = reintervalClamped(diff/2.0, 1, total/4.0, 1, 8)
     else:
-        dm = abs(res1 - res2)
+        dm = diff
 
     draw_p = ts.calc_draw_probability(dm, 2)
 
-    print("{}-{} ->  dm:{},  dp:{}".format(res1, res2,dm, draw_p))
-
-    #factor = 0.4 if americano else 0.4
-    #offset = 0.05 if americano else 0.1
-    #draw_p = offset + d * factor
-
     tSkill.draw_probability = draw_p
-
     results = [(_GetPlace(res1, res2), _GetPlace(res2, res1))]
 
     for r in results:
