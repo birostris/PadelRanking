@@ -129,7 +129,7 @@ def GetSortedRanking_(players):
         rankings[p] = (ts.expose(players[p]), players[p])
     return sorted(rankings.items(), key=lambda kv : (kv[1][0],kv[0]), reverse=True)
 
-def GetRanking(conn, players, print_ranking):
+def GetRanking(conn, players_and_records, print_ranking):
     playerNames = GetIdPlayerNameDict(conn)
     r = []
 
@@ -138,15 +138,17 @@ def GetRanking(conn, players, print_ranking):
 
     prevRankingPoint = 1000000.
     pos = 1
+    (players, records) = players_and_records
     for p in GetSortedRanking_(players):
         name = playerNames[p[0]]
+        record = records[p[0]]
         if print_ranking:
             rankingPoint = p[1][0]
             if abs(rankingPoint - prevRankingPoint) > 1e-6:
                 pos = len(r) + 1
-            print("{}.\t{:10}   \t{}".format(pos, name, rankingPoint))
+            print("{}.\t{:10}   \t{} \t{}".format(pos, name, rankingPoint, record))
             prevRankingPoint = rankingPoint
-        r.append((name, p[1]))
+        r.append((name, p[1], record))
     if print_ranking:
         print("---------------------")
     return r
@@ -195,17 +197,20 @@ def PlayGame_(tSkill, team1, team2, res1, res2, americano = False):
         rating_groups = tSkill.rate(rating_groups, ranks=r)
     return rating_groups
 
-def ComputeRatings(conn, verbose):
+def ComputeRatingsAndRecords(conn, verbose):
     temp_players = GetAllPlayers(conn)
 
     playerNames = GetIdPlayerNameDict(conn)
 
     players = {}
+    playerRecords = {}
 
     for p in temp_players:
-        players[p['id']] = ts.Rating()
-    games = GetAllGames(conn)
+        pid = p['id']
+        players[pid] = ts.Rating()
+        playerRecords[pid] = (0,0,0)
 
+    games = GetAllGames(conn)
     tSkill = ts.TrueSkill()
 
     for g in games:
@@ -214,6 +219,20 @@ def ComputeRatings(conn, verbose):
         team2 = {p[2] : players[p[2]], p[3]: players[p[3]]}
         s = (g['score1'], g['score2'])
         am = g['gametype'] == 1
+
+        for i in range(0,4):
+            (win, draw, loss) = playerRecords[p[i]]
+            myScoreIndex = 0 if i < 2 else 1
+            otherScoreIndex = 1 - myScoreIndex
+            if s[0] == s[1]:
+                draw += 1
+            if s[myScoreIndex] > s[otherScoreIndex]:
+                win += 1
+            if s[myScoreIndex] < s[otherScoreIndex]:
+                loss += 1
+
+            playerRecords[p[i]] = (win,draw,loss)
+
         newRatings = flatten(PlayGame_(tSkill, team1, team2, s[0], s[1], am))
 
         if verbose:
@@ -225,7 +244,8 @@ def ComputeRatings(conn, verbose):
                 diffRank = ts.expose(newRatings[t]) - ts.expose(players[t])
                 print("\t{}: mu:{}  rank:{}".format(playerNames[t], diffMu, diffRank)) 
             players[t] = newRatings[t]
-    return players
+
+    return (players, playerRecords)
 
 #######################
 ####   WEBSERVER  #####
@@ -259,8 +279,10 @@ class DataFetching(Resource):
         if request.args.get(b'rankings') != None:
             request.setResponseCode(200)
             d = []
-            for r in GetRanking(self.db,ComputeRatings(self.db, False),True):
-                d.append( { "Name": r[0],  "TrueSkill" : { "ranking": r[1][0], "mu": r[1][1].mu, "sigma": r[1][1].sigma}})
+            ratingAndRecords = ComputeRatingsAndRecords(self.db, False)
+            for (name,skill,record) in GetRanking(self.db, ratingAndRecords, True):
+                (wins, draws, losses) = record
+                d.append( { "Name": name,  "TrueSkill" : { "ranking": skill[0], "mu": skill[1].mu, "sigma": skill[1].sigma}, "Record": { "wins": wins, "draws": draws, "losses": losses}})
             return json.dumps(d).encode("utf8")
         return ""
 

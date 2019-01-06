@@ -111,10 +111,14 @@ function UpdateRankings(rankings)
     {
         var name = rankings[i].Name;
         var ranking = rankings[i].TrueSkill.ranking;
+        var record = rankings[i].Record;
+        var recordString = record.wins + '-' + record.draws + '-' + record.losses;
 
         if(ranking != prevRanking)
             pos = i + 1;
-        table.append("<tr class=\"ranking\"><td>"+pos+"</td><td>"+name+"</td><td class=\"small\">"+ranking.toFixed(3)+"</td>");
+        table.append("<tr class=\"ranking\"><td>"+pos+"</td><td>"+name+"</td>"+
+                    "<td class=\"small\">"+recordString+"</td>"+
+                    "<td class=\"small\">"+ranking.toFixed(3)+"</td>");
         prevRanking = ranking;
     }
 }
