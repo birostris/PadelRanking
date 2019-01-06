@@ -169,14 +169,30 @@ def flatten(d):
             r[f] = e[f]
     return r
 
+def reintervalClamped(f, oldMin, oldMax, newMin, newMax):
+    if f <= oldMin: return newMin
+    if f >= oldMax: return newMax
+
+    value = (f - oldMin) * (newMax - newMin) / (oldMax - oldMin) + newMin
+    return min(newMax,max(newMin, value))
+
 def PlayGame_(tSkill, team1, team2, res1, res2, americano = False):
     rating_groups = (team1, team2)
-    total = float(res1 + res2)
-    d = abs(res1 - res2) / total
 
-    factor = 0.4 if americano else 0.4
-    offset = 0.05 if americano else 0.1
-    draw_p = offset + d * factor
+    if americano:
+        total = res1 + res2
+        diff = abs(res1 - res2)
+        dm = reintervalClamped(diff/2.0, 1, total/4.0, 1, 8)
+    else:
+        dm = abs(res1 - res2)
+
+    draw_p = ts.calc_draw_probability(dm, 2)
+
+    print("{}-{} ->  dm:{},  dp:{}".format(res1, res2,dm, draw_p))
+
+    #factor = 0.4 if americano else 0.4
+    #offset = 0.05 if americano else 0.1
+    #draw_p = offset + d * factor
 
     tSkill.draw_probability = draw_p
 
