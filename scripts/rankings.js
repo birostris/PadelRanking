@@ -23,8 +23,10 @@ var rankingGraphOptions = {
         title: {
             text: "",
         }
-        }]
-    // legend: {
+        }],
+    legend: {
+        reversed: true
+    }
     //     enabled: false,
     //     align: 'center',
     //     verticalAlign: 'bottom',
@@ -52,14 +54,12 @@ var progressGraphOptions = {
         title: {
             text: "Score",
         }
-        }]
-    // legend: {
-    //     enabled: false,
-    //     align: 'center',
-    //     verticalAlign: 'bottom',
-    //     floating: false,
-    //     backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
-    //};
+        }],
+    legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle'
+    }
 };
 
 
@@ -142,7 +142,7 @@ function UpdateProgressGraphData(rankings)
         var r = rankings[i]
         var serie = {
             type: 'line',
-            marker: {enabled:false},
+            //marker: {enabled:false},
             name: r.Name,
             zIndex: i,
             data: r.Progress
