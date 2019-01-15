@@ -1,6 +1,7 @@
 var rankingGraph = null;
+var progressGraph = null;
 
-var graphOptions = {
+var rankingGraphOptions = {
     chart: {
         renderTo: 'rankings_graph',
     },
@@ -32,6 +33,37 @@ var graphOptions = {
     //};
 };
 
+var progressGraphOptions = {
+    chart: {
+        renderTo: 'progress_graph',
+    },
+    plotOptions: {
+    },
+    title: {
+        text:"TopTracer TrueSkill(mod) Progress Graph"
+    },
+    tooltip: {
+        shared: true
+    },
+    xAxis: {
+    },
+    yAxis: [{ 
+        opposite: true,
+        title: {
+            text: "Score",
+        }
+        }]
+    // legend: {
+    //     enabled: false,
+    //     align: 'center',
+    //     verticalAlign: 'bottom',
+    //     floating: false,
+    //     backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+    //};
+};
+
+
+
 function NormalDistribution(x, mu, sigma)
 {
     return 1.0 / (sigma * Math.sqrt(2.0 * Math.PI)) * Math.exp(-(x-mu)*(x-mu) / (2.0 * sigma*sigma)) 
@@ -55,7 +87,7 @@ function NormalDistributionData(mu, sigma)
 }
 
 
-function UpdateGraphData(rankings) 
+function UpdateRankingsGraphData(rankings) 
 {
     if(rankings == null)
         return;
@@ -72,7 +104,7 @@ function UpdateGraphData(rankings)
             marker: {enabled:false},
             name: r.Name,
             zIndex: i,
-            data: NormalDistributionData(r.TrueSkill.mu, r.TrueSkill.sigma),
+            data: NormalDistributionData(r.TrueSkill.mu, r.TrueSkill.sigma)
         };
         var plotLine = {
             value: r.TrueSkill.ranking,
@@ -91,11 +123,36 @@ function UpdateGraphData(rankings)
         plotLines.push(plotLine);
         series.push(serie);  
     }
-    graphOptions.series = series;
-    graphOptions.xAxis.plotLines = plotLines;
-    rankingGraph.update(graphOptions,true, true,false);
+    rankingGraphOptions.series = series;
+    rankingGraphOptions.xAxis.plotLines = plotLines;
+    rankingGraph.update(rankingGraphOptions,true, true,false);
 }
 
+function UpdateProgressGraphData(rankings) 
+{
+    if(rankings == null)
+        return;
+
+    //var graph = $("#rankings_graph");
+    var series = []
+    var idx = 0
+    var plotLines = []
+    for(var i in rankings)
+    {
+        var r = rankings[i]
+        var serie = {
+            type: 'line',
+            marker: {enabled:false},
+            name: r.Name,
+            zIndex: i,
+            data: r.Progress
+        };
+        series.push(serie);  
+    }
+    progressGraphOptions.series = series;
+    progressGraphOptions.xAxis.plotLines = plotLines;
+    progressGraph.update(progressGraphOptions,true, true,false);
+}
 
 
 function UpdateRankings(rankings)
@@ -187,7 +244,8 @@ function GetRankings() {
     $.getJSON("/data", { rankings: true }, function (resp, reqstatus) {
         if (reqstatus == "success" && resp != null) {
             UpdateRankings(resp);
-            UpdateGraphData(resp)
+            UpdateRankingsGraphData(resp)
+            UpdateProgressGraphData(resp)
         }
     });
 }
@@ -368,7 +426,8 @@ function ValidateAndAddPlayer()
 
 function RankingsStartup()
 {
-    rankingGraph = Highcharts.chart(graphOptions);
+    rankingGraph = Highcharts.chart(rankingGraphOptions);
+    progressGraph = Highcharts.chart(progressGraphOptions);
     GetRankings();
     GetPlayers();
     GetGames();
