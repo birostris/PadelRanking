@@ -187,7 +187,7 @@ def PlayGame_(tSkill, team1, team2, res1, res2, americano = False):
         total = res1 + res2
         dm = reintervalClamped(diff/2.0, 1, total/4.0, 1, 8)
     else:
-        dm = diff
+        dm = max(1,diff-2)
 
     draw_p = ts.calc_draw_probability(dm, 2)
 
