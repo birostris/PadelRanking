@@ -141,7 +141,7 @@ function UpdateProgressGraphData(rankings)
     {
         var r = rankings[i]
         var serie = {
-            type: 'line',
+            type: 'spline',
             //marker: {enabled:false},
             name: r.Name,
             zIndex: i,
@@ -212,7 +212,7 @@ function UpdateGames(games)
         return;
     var table = $("#last_games");
     table.empty();
-    for(var i = games.length - 1; i >= 0 && i >= games.length - 10; i--)
+    for(var i = games.length - 1; i >= 0 && i >= games.length - 12; i--)
     {
         var game = games[i];
         var p1 = game.player1;
