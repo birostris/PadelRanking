@@ -11,7 +11,7 @@ import datetime as dt
 import pytz
 
 
-parser = argparse.ArgumentParser(description='Log data from an ARITERM Biomatic 20i to a sqlite database')
+parser = argparse.ArgumentParser(description='Ranking system for Racketsports - eg. Padel. Based on TrueSkill ranking system')
 parser.add_argument("-db", "--database", default="padel_ranking.db",  help="The sqlite database file (default: %(default)s)")
 parser.add_argument("-p", "--port", default=8880,  type=int, help="Webserver port (default: %(default)i)")
 parser.add_argument("-v", "--verbose", action='store_true',  help="verbose logging of calls")
