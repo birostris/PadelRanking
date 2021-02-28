@@ -1,15 +1,17 @@
-/* If you want you can use font-face */
+
 body { 
     color:white;
     background-color:#15222E; 
-    font-family: 'Unica One', Arial, Helvetica, sans-serif;
+    font-family: "Overlock SC", Helvetica, sans-serif;
 }
 
-table{ padding:30px }
-
-tr.ranking {
-    background:#0A4C8C;
-    color:#FFF
+table{ 
+    padding: 2px;
+    border-color: white;
+    border-width: 1px;
+    border-style: solid;
+    border-collapse: collapse;
+    background-color: #15222E;
 }
 
 tr.ranking:nth-child(1){ background:#ffd700; color:#15222E}
@@ -19,7 +21,7 @@ tr.ranking:hover {background: #47A3D8;color:#ffffff}
 
 
 tr.games {
-    background:#0A4C8C;
+    background:#15222E;
     color:#999
 }
 
@@ -40,4 +42,3 @@ td {
   }
   
 td.small{ padding-left:30px; font-size:16px;}
-

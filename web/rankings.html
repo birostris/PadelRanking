@@ -3,7 +3,7 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <head>
     <link rel="stylesheet" href="/styles/rankings.css">
-    <title>TopPadel Ranking</title>
+    <title>Tennis Ranking</title>
 
     <!-- Run Apple web app in fullscreen -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,45 +13,47 @@
     <link rel="apple-touch-icon" href="/styles/logo_small.png">
       <!-- Favicon -->
     <link rel="icon" type="image/png" href="/styles/logo_small.png">
+    <link href='https://fonts.googleapis.com/css?family=Overlock SC' rel='stylesheet'>
 
 </head>
 
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.1.4/highcharts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.1.4/highcharts-more.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.1.4/themes/dark-blue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/9.0.1/highcharts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/9.0.1/highcharts-more.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/9.0.1/themes/dark-unica.min.js"></script>
     <script src="/scripts/rankings.js"></script>
 
+    
+
     <div>
-        <img src="/styles/logo.png" style="display:inline-block;"/>
+        <img src="/styles/logo.png" style="display:inline-block; height:92px"/>
     </div>
 
     <div>
-        <div style="display:inline-block">
+        <div style="display:inline-table; padding-left: 10px">
             Ranking
-            <table id="rankings_table" class="rankings">
-            </table>
+            <table id="rankings_table" class="rankings"></table>
         </div>
-        <div style="display:inline-block">
+        <div style="display:inline-table; padding-left: 10px">
             Last games
-            <table id="last_games" class="games">
-        </table>
-    </div>
-    </div>
-    <div>
-        <div id="rankings_graph" style="min-width: 375px; height: 450px;"></div>
-        <div id="progress_graph" style="min-width: 375px; height: 450px;"></div>
-    </div>
- 
-    <div style="display:inline-block;">
-        Create game
+            <table id="last_games" class="games"></table>
+        </div>
+
+    <div style="display:inline-table; padding-left: 10px">
+        Create  game
         <br>
+        <input type="radio" id="single" name="game_type" value="single" checked="checked">
+        single
+        <input type="radio" id="double" name="game_type" value="double">
+        double
+        <br>
+
         <span>
-            <select id="player1" style="background:#def"></select></select> ,
+            <select id="player1" style="background:#def"></select>
             <select id="player2" style="background:#def"></select> /
-            <select id="player3" style="background:#ffd"></select> ,
-            <select id="player4" style="background:#ffd">:</select>  result:
+            <select id="player3" style="background:#ffd"></select>
+            <select id="player4" style="background:#ffd"></select>  result:
             <input id="score1" type="number" style="background:#def; width:50px" value="0"/> - 
             <input id="score2" type="number" style="background:#ffd; width:50px" value="0"/>
             <button id="add_game" type="submit">Add Score</button>
@@ -74,6 +76,11 @@
             <button id="delete_game">Delete game</button>
         </span>
 
+    </div>
+    </div>
+    <div>
+        <div id="progress_graph" style="min-width: 375px; height: 450px;"></div>
+        <div id="rankings_graph" style="min-width: 375px; height: 450px;"></div>
     </div>
 
 

@@ -85,6 +85,8 @@ def AddPlayer(conn, firstname, lastname, nick):
     return None
 
 def GetPlayerId(conn, nick):
+    if not nick:
+        return 0
     v = conn.execute("SELECT id from players where nick = ?",(nick,)).fetchone()
     if(v == None):
         return None
@@ -103,14 +105,17 @@ def GetAllPlayers(conn):
 def GetAllGames(conn):
     return conn.execute("SELECT * from games ORDER BY id").fetchall()
 
+
 def GetAllGamesWithNames(conn):
     games = conn.execute("SELECT * from games").fetchall()
     players = GetIdPlayerNameDict(conn)
+    nameIds = ['player1', 'player2', 'player3', 'player4']
     for g in games:
-        g['player1'] = players[g['player1']]
-        g['player2'] = players[g['player2']]
-        g['player3'] = players[g['player3']]
-        g['player4'] = players[g['player4']]
+        for nId in nameIds:
+            if g[nId] == 0:
+                g[nId] = None 
+            else:
+                g[nId] = players[g[nId]] 
     return games
 
 #######################
@@ -219,12 +224,18 @@ def ComputeRatingsAndRecords(conn, verbose):
     lastId = 0
     for g in games:
         p = (g['player1'], g['player2'], g['player3'], g['player4'])
-        team1 = {p[0] : players[p[0]], p[1]: players[p[1]]}
-        team2 = {p[2] : players[p[2]], p[3]: players[p[3]]}
+        if p[1] == 0:
+            team1 = {p[0] : players[p[0]]}
+            team2 = {p[2] : players[p[2]]}        
+        else:
+            team1 = {p[0] : players[p[0]], p[1]: players[p[1]]}
+            team2 = {p[2] : players[p[2]], p[3]: players[p[3]]}
         s = (g['score1'], g['score2'])
         am = g['gametype'] == 1
 
         for i in range(0,4):
+            if p[i] == 0:
+                continue
             (win, draw, loss) = playerRecords[p[i]]
             myScoreIndex = 0 if i < 2 else 1
             otherScoreIndex = 1 - myScoreIndex
@@ -240,8 +251,13 @@ def ComputeRatingsAndRecords(conn, verbose):
         newRatings = flatten(PlayGame_(tSkill, team1, team2, s[0], s[1], am))
 
         if verbose:
-            print("({}, {})  vs ({}, {})    {}-{}   {}".format(playerNames[p[0]], playerNames[p[1]],
-                                                      playerNames[p[2]], playerNames[p[3]], s[0], s[1], "Americano" if am else "" ))
+            if  p[1] == 0:
+                print("({}) vs ({})  {}-{}   {}".format(playerNames[p[0]],
+                                                        playerNames[p[2]], s[0], s[1], "Americano" if am else "" ))
+            else:
+                print("({} {})  vs ({}  {})    {}-{}   {}".format(playerNames[p[0]], playerNames[p[1]],
+                                                        playerNames[p[2]], playerNames[p[3]], s[0], s[1], "Americano" if am else "" ))
+
         for t in newRatings:
             exp = ts.expose(newRatings[t])
             if verbose:
@@ -320,8 +336,7 @@ class DataFetching(Resource):
             m = AddGame(self.db,
                         content['player1'], content['player2'],
                         content['player3'], content['player4'],
-                        content['score1'], content['score2'],
-                        content['americano'])
+                        content['score1'], content['score2'])
             print(m)
             if m != None:
                 request.setResponseCode(200)

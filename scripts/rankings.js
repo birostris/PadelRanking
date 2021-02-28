@@ -1,9 +1,14 @@
 var rankingGraph = null;
 var progressGraph = null;
+var nrPlayers = 0;
+var font = 'Overlock SC'
 
 var rankingGraphOptions = {
     chart: {
         renderTo: 'rankings_graph',
+        style: {
+            fontFamily: font
+        }
     },
     tooltip: { enabled: false},
     plotOptions: {
@@ -14,35 +19,41 @@ var rankingGraphOptions = {
         }        
     },
     title: {
-        text:"TopTracer TrueSkill(mod) Padel Ranking"
+        text:"TrueSkill(mod) Racketsport Ranking",
+        style: {
+            fontSize : "14px"
+        }
     },
     xAxis: {
     },
     yAxis: [{ 
         labels: "",
+        opposite: true,
         title: {
-            text: "",
+            text: "Distribution",
         }
         }],
     legend: {
-        reversed: true
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle'
     }
-    //     enabled: false,
-    //     align: 'center',
-    //     verticalAlign: 'bottom',
-    //     floating: false,
-    //     backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
-    //};
 };
 
 var progressGraphOptions = {
     chart: {
         renderTo: 'progress_graph',
+        style: {
+            fontFamily: font
+        }
     },
     plotOptions: {
     },
     title: {
-        text:"TopTracer TrueSkill(mod) Progress Graph"
+        text:"TrueSkill(mod) Progress Graph",
+        style: {
+            fontSize : "14px"
+        }
     },
     tooltip: {
         shared: true
@@ -164,6 +175,7 @@ function UpdateRankings(rankings)
     var pos = 1;
     var table = $("#rankings_table");
     table.empty();
+    nrPlayers = rankings.length
     for(var i = 0; i < rankings.length; i++)
     {
         var name = rankings[i].Name;
@@ -212,13 +224,15 @@ function UpdateGames(games)
         return;
     var table = $("#last_games");
     table.empty();
-    for(var i = games.length - 1; i >= 0 && i >= games.length - 12; i--)
+    
+    var nrGamesToShow = Math.max(nrPlayers, 6)
+    for(var i = games.length - 1; i >= 0 && i >= games.length - nrGamesToShow; i--)
     {
         var game = games[i];
-        var p1 = game.player1;
-        var p2 = game.player2;
-        var p3 = game.player3;
-        var p4 = game.player4;
+        var p1 = game.player1??"";
+        var p2 = game.player2??"";
+        var p3 = game.player3??"";
+        var p4 = game.player4??"";
 
         var score1 = game.score1
         var score2 = game.score2;
@@ -227,7 +241,10 @@ function UpdateGames(games)
         var d = new Date(game.date);
         var date = d.toLocaleDateString()
 
-        table.append("<tr class=\"games\"><td class='small'>"+id +"</td><td class='small'>"+ date +"</td><td>"+p1+","+p2+"</td><td>"+p3+","+p4+"</td><td>"+score1+"-"+score2+"</td>");
+        table.append("<tr class=\"games\"><td class='small'>"+id+
+            "</td><td class='small'>"+ date +"</td><td>"
+            + p1 +" "+ p2 +"</td><td>"+ p3 +" "+ p4 +
+            "</td><td>" + score1 + "-" + score2 + "</td>");
     }
 }
 
@@ -260,6 +277,17 @@ function GetGames() {
 
 function AddGameButtonEnable()
 {
+    var single = $("#single").prop("checked");
+    if(single)
+    {
+        $("#player2").hide();
+        $("#player4").hide();
+    }
+    else
+    {
+        $("#player2").show();
+        $("#player4").show();
+    }
     var p1 = parseInt($("#player1").val());
     var p2 = parseInt($("#player2").val());
     var p3 = parseInt($("#player3").val());
@@ -268,15 +296,26 @@ function AddGameButtonEnable()
     var s1 = parseInt($("#score1").val());
     var s2 = parseInt($("#score2").val());
 
-    var disabled = isNaN(p1) || isNaN(p2) ||
+    var disabled = true;
+
+    if(single)
+        disabled = isNaN(p1) ||
+                   isNaN(p3) ||
+                   isNaN(s1) || isNaN(s2) ||
+                   p1 == p3 || 
+                   s1 < 0 || s2 < 0 || s1 + s2 == 0;
+    else
+        disabled = isNaN(p1) || isNaN(p2) ||
                    isNaN(p3) || isNaN(p4) ||
                    isNaN(s1) || isNaN(s2) ||
-                   p1 == p2 || p1 == p3 || p1 == p4 ||
-                   p2 == p3 || p2 == p4 ||
+                   p1 == p2 || 
+                   p1 == p3 || 
+                   p1 == p4 ||
+                   p2 == p3 || 
+                   p2 == p4 ||
                    p3 == p4 ||
                    s1 < 0 || s2 < 0 || s1 + s2 == 0;
- 
-        
+
     $("#add_game").prop("disabled", disabled);
 }
 
@@ -332,23 +371,40 @@ function DeleteGame()
 
 function ValidateAndAddGame() 
 {
+    var single = $("#single").prop("checked");
+
     var p1 = parseInt($("#player1").val());
-    var p2 = parseInt($("#player2").val());
+    var p2 = single ? 0 : parseInt($("#player2").val());
     var p3 = parseInt($("#player3").val());
-    var p4 = parseInt($("#player4").val());
+    var p4 = single ? 0 : parseInt($("#player4").val());
 
     var s1 = parseInt($("#score1").val());
     var s2 = parseInt($("#score2").val());
 
-    if(isNaN(p1) || isNaN(p2) ||
-       isNaN(p3) || isNaN(p4) ||
-       isNaN(s1) || isNaN(s2) ||
-       p1 == p2 || p1 == p3 || p1 == p4 ||
-       p2 == p3 || p2 == p4 ||
-       p3 == p4 ||
-       s1 < 0 || s2 < 0 || s1 + s2 == 0)
+    var notOk = true; 
+
+    if(single)
     {
-        alert("Need to have 4 different players and valid scores");
+        notOk = isNaN(p1) || isNaN(p3) ||
+                isNaN(s1) || isNaN(s2) ||
+                p1 == p3
+                s1 < 0 || s2 < 0 || s1 + s2 == 0;
+    }
+    else
+    {
+        notOk = isNaN(p1) || isNaN(p2) ||
+                isNaN(p3) || isNaN(p4) ||
+                isNaN(s1) || isNaN(s2) ||
+                p1 == p2 || p1 == p3 || p1 == p4 ||
+                p2 == p3 || p2 == p4 || p3 == p4 ||
+                s1 < 0 || s2 < 0 || s1 + s2 == 0;
+    }
+    if(notOk)
+    {
+        if(single)
+            alert("Need to have 2 different players and valid scores");
+        else
+            alert("Need to have 4 different players and valid scores");
     }
     else
     {
@@ -362,8 +418,7 @@ function ValidateAndAddGame()
                     "player3": p3,
                     "player4": p4,
                     "score1": s1,
-                    "score2": s2,
-                    "americano": (s1 > 7 || s2 > 7) ? 1 : 0
+                    "score2": s2
                 }),
             contentType: "application/json; charset=utf-8",
             dataType   : "json",
@@ -444,6 +499,8 @@ function RankingsStartup()
         arr[i].keyup(function() { AddGameButtonEnable();});
         arr[i].click(function() { AddGameButtonEnable();});
     }
+    $("#single").click(function() { AddGameButtonEnable();});
+    $("#double").click(function() { AddGameButtonEnable();});
 
     arr = [ $("#firstname"), $("#lastname"), $("#nick") ];
     for(var i in arr)
