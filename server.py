@@ -203,7 +203,7 @@ def PlayGame_(tSkill, team1, team2, res1, res2, americano = False):
         rating_groups = tSkill.rate(rating_groups, ranks=r)
     return rating_groups
 
-def ComputeRatingsAndRecords(conn, verbose):
+def ComputeRatingsAndRecords(conn, singles, doubles, verbose):
     temp_players = GetAllPlayers(conn)
 
     playerNames = GetIdPlayerNameDict(conn)
@@ -224,12 +224,20 @@ def ComputeRatingsAndRecords(conn, verbose):
     lastId = 0
     for g in games:
         p = (g['player1'], g['player2'], g['player3'], g['player4'])
-        if p[1] == 0:
+
+        ok = False       
+        if p[1] == 0 and singles:
             team1 = {p[0] : players[p[0]]}
-            team2 = {p[2] : players[p[2]]}        
-        else:
+            team2 = {p[2] : players[p[2]]}
+            ok = True       
+        if p[1] != 0 and doubles:
             team1 = {p[0] : players[p[0]], p[1]: players[p[1]]}
             team2 = {p[2] : players[p[2]], p[3]: players[p[3]]}
+            ok = True
+        
+        if not ok:
+            continue
+        
         s = (g['score1'], g['score2'])
         am = g['gametype'] == 1
 
@@ -310,7 +318,17 @@ class DataFetching(Resource):
         if request.args.get(b'rankings') != None:
             request.setResponseCode(200)
             d = []
-            ratingRecordsProgress = ComputeRatingsAndRecords(self.db, False)
+            singles = False
+            doubles = False
+            gameFilter = request.args.get(b'filter')[0]
+            if gameFilter == b'singles':
+                singles = True
+            if gameFilter == b'doubles':
+                doubles = True
+            if gameFilter == None or gameFilter == b'':
+                singles = True
+                doubles = True
+            ratingRecordsProgress = ComputeRatingsAndRecords(self.db, singles, doubles, False)
             for (name,skill,record,progress) in GetRanking(self.db, ratingRecordsProgress, True):
                 (wins, draws, losses) = record
                 d.append( { "Name": name,  "TrueSkill" : { "ranking": skill[0], "mu": skill[1].mu, "sigma": skill[1].sigma}, "Record": { "wins": wins, "draws": draws, "losses": losses}, "Progress": progress})

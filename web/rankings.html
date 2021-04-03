@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
 <head>
     <link rel="stylesheet" href="/styles/rankings.css">
     <title>Tennis Ranking</title>
@@ -9,9 +10,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-      <!-- iOS web app icon (optimized for iPad retina (167x167) -->
+    <!-- iOS web app icon (optimized for iPad retina (167x167) -->
     <link rel="apple-touch-icon" href="/styles/logo_small.png">
-      <!-- Favicon -->
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/styles/logo_small.png">
     <link href='https://fonts.googleapis.com/css?family=Overlock SC' rel='stylesheet'>
 
@@ -24,10 +25,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/9.0.1/themes/dark-unica.min.js"></script>
     <script src="/scripts/rankings.js"></script>
 
-    
+
 
     <div>
-        <img src="/styles/logo.png" style="display:inline-block; height:92px"/>
+        <img src="/styles/logo.png" style="display:inline-block; height:92px" />
+        <br>
+        <input type="radio" id="filterSingles" name="ranking_filter" value="filterSingles">
+        singles
+        <input type="radio" id="filterDoubles" name="ranking_filter" value="filterDoubles">
+        doubles
+        <input type="radio" id="filterNone" name="ranking_filter" value="filterNone" checked="checked">
+        singles & doubles
+        <br>
+
     </div>
 
     <div>
@@ -40,43 +50,43 @@
             <table id="last_games" class="games"></table>
         </div>
 
-    <div style="display:inline-table; padding-left: 10px">
-        Create  game
-        <br>
-        <input type="radio" id="single" name="game_type" value="single" checked="checked">
-        single
-        <input type="radio" id="double" name="game_type" value="double">
-        double
-        <br>
+        <div style="display:inline-table; padding-left: 10px">
+            Create game
+            <br>
+            <input type="radio" id="single" name="game_type" value="single" checked="checked">
+            single
+            <input type="radio" id="double" name="game_type" value="double">
+            double
+            <br>
 
-        <span>
-            <select id="player1" style="background:#def"></select>
-            <select id="player2" style="background:#def"></select> /
-            <select id="player3" style="background:#ffd"></select>
-            <select id="player4" style="background:#ffd"></select>  result:
-            <input id="score1" type="number" style="background:#def; width:50px" value="0"/> - 
-            <input id="score2" type="number" style="background:#ffd; width:50px" value="0"/>
-            <button id="add_game" type="submit">Add Score</button>
-        </span>
-        <p>
-        Create player
-        <br>
-        <span>
-            First: <input id="firstname" type="text" style="background:#fff; width:80px"/>
-            Last: <input id="lastname" type="text" style="background:#fff; width:80px"/>
-            DisplayName: <input id="nick" type="text" style="background:#fff; width:80px"/>
-            <button id="add_player">Add Player</button>
-        </span>
-        <p>
-        Delete game
-        <br>
-        <span>
-        GameId: <input id="game_id" type="number" style="background:#fff; width:80px"/>
-        Password: <input id="password" type="password" style="background:#fff; width:80px"/>
-            <button id="delete_game">Delete game</button>
-        </span>
+            <span>
+                <select id="player1" style="background:#def"></select>
+                <select id="player2" style="background:#def"></select> /
+                <select id="player3" style="background:#ffd"></select>
+                <select id="player4" style="background:#ffd"></select> result:
+                <input id="score1" type="number" style="background:#def; width:50px" value="0" /> -
+                <input id="score2" type="number" style="background:#ffd; width:50px" value="0" />
+                <button id="add_game" type="submit">Add Score</button>
+            </span>
+            <p>
+                Create player
+                <br>
+                <span>
+                    First: <input id="firstname" type="text" style="background:#fff; width:80px" />
+                    Last: <input id="lastname" type="text" style="background:#fff; width:80px" />
+                    DisplayName: <input id="nick" type="text" style="background:#fff; width:80px" />
+                    <button id="add_player">Add Player</button>
+                </span>
+            <p>
+                Delete game
+                <br>
+                <span>
+                    GameId: <input id="game_id" type="number" style="background:#fff; width:80px" />
+                    Password: <input id="password" type="password" style="background:#fff; width:80px" />
+                    <button id="delete_game">Delete game</button>
+                </span>
 
-    </div>
+        </div>
     </div>
     <div>
         <div id="progress_graph" style="min-width: 375px; height: 450px;"></div>
