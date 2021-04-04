@@ -92,7 +92,26 @@
         <div id="progress_graph" style="min-width: 375px; height: 450px;"></div>
         <div id="rankings_graph" style="min-width: 375px; height: 450px;"></div>
     </div>
-
+    <div>
+        If you want more information about the algorithms behind this please visit:<br>
+        <a href="https://trueskill.org/">trueskill.org</a><br>
+        <a
+            href="https://www.microsoft.com/en-us/research/project/trueskill-ranking-system/?from=http%3A%2F%2Fresearch.microsoft.com%2Fen-us%2Fprojects%2Ftrueskill">Microsoft
+            Research Trueskill</a><br>
+        <p>
+            Basically the Bell curves shows your skill parameters. The top is the players skill and the width
+            is a degree of uncertenty of the skill, i.e the real skill is somewhere within the bell curve.<br>
+        </p>
+        <p>
+            The TrueSkill ranking system uses the so-called conservative skill estimate which is the 1%
+            quantile of the belief distribution:<br>
+            it is extremely likely (to be precise, with a belief of 99%) that the player’s actual skill
+            is higher than the conservative estimate.<br>
+        </p>
+        <p>
+            There are more info in FAQ on the Microsoft site above.
+        </p>
+    </div>
 
     <script type="text/javascript">
 
